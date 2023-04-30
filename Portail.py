@@ -9,8 +9,8 @@ from bson.objectid import ObjectId
 VERSION = "0.2"
 print("Portail v" + VERSION + "\n")
 
-CSVToRead = 'bourin1.csv'
-JSONToWrite = "96264.json"
+CSVToRead = 'Glomi.csv'
+JSONToWrite = "Name test.json"
 
 Initial_id = ""
 Initialpcid = ""
@@ -18,6 +18,7 @@ ValeurLvl = 0
 ValeurGold = 0
 ValeurDT = 0
 Donnees = {}
+OldJSON = {}
 MagicItems = {}
 StoryAwards = {}
 Consumables = {}
@@ -36,7 +37,7 @@ def EntryLog(Ligne):
     LigneJSON = {
         "_id": str(ObjectId()),
         "type": TypeLog(Ligne[0]),
-        "date": int(datetime.datetime.now().timestamp() * 1000),
+        "date": convertit_date(Ligne[3]),
         "code": Ligne[1],
         "dmrewardtype": None,
         "lvlgain": 0,
@@ -49,7 +50,7 @@ def EntryLog(Ligne):
         "pcid": Donnees["_id"],
         "tokenused": None,
         "itemout": None,
-        "dm": ""
+        "dm": Ligne[12]
         }
     return LigneJSON
 
@@ -91,7 +92,6 @@ def convertit_date(chaine_date):
     dt_utc = dt.astimezone(datetime.timezone.utc)
     return dt_utc.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
-
 def MagicItemRemove(Ligne):
     MagicItemLog = MagicItemEntryLog(Ligne)
     for i in range(len(Donnees["magicItems"])):
@@ -109,23 +109,20 @@ def NettoyageMagicItem(MagicItemsList):
             NewMagicItemsList.pop(compteur)
     return NewMagicItemsList
 
-
-
-
-
-
-
-
-
-
 #truc bête, mais pas le droit de modifier une variable globale depuis l'intérieur d'une fonction
+
+with open(JSONToWrite, "r") as f:
+    OldJSON = json.load(f)
+    Initial_id = OldJSON["_id"]
+    Initialpcid = OldJSON["userid"]
+
 
 with open(CSVToRead, 'r', encoding='utf-8') as f:
     reader = csv.reader(f)
     for Row in reader:
         if reader.line_num == 2:#ligne info personnages
             Donnees = {
-                "_id": "PRENDRESURFICHE_01",
+                "_id": Initial_id,
                 "createdate": datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
                 "name": Row[0],
                 "pcClass": Row[2],
@@ -133,7 +130,7 @@ with open(CSVToRead, 'r', encoding='utf-8') as f:
                 "lvl": ValeurLvl, #a calculer
                 "url": Row[6],
                 "setting": "al",
-                "userid": "PRENDRESURFICHE_02",
+                "userid": Initialpcid,
                 "magicItems": [],
                 "storyAwards": [],
                 "consumables": [],
@@ -158,6 +155,7 @@ with open(CSVToRead, 'r', encoding='utf-8') as f:
             elif "CharacterLogEntry" in Row[0]:#log d'aventure
                 Donnees["logs"].append(EntryLog(Row))
                 Donnees["logs"][-1]["lvlgain"] += 1# la flemme d'ajouter un if dans la fonction
+                ValeurLvl += 1 
                 Donnees["gold"] += float(Donnees["logs"][-1]["goldgain"])
                 Donnees["dt"] += float(Donnees["logs"][-1]["dtgain"])
             
@@ -189,17 +187,19 @@ with open(CSVToRead, 'r', encoding='utf-8') as f:
             IndexMagicItem = MagicItemRemove(Row)
             Donnees["magicItems"].pop(IndexMagicItem)
             
-            
 
+
+Donnees["lvl"] = ValeurLvl 
 Donnees["magicItems"] = NettoyageMagicItem(Donnees["magicItems"])
+Donnees["logs"].reverse()
 #print(Donnees["magicItems"])
 
 with open(JSONToWrite, "w", encoding="utf-8", newline='\n') as f:
     json.dump(Donnees, f, ensure_ascii=False, indent=2)
     
     
-print("Attention, le rang de faction est perdue !\n")
+print("Attention, les informations de faction sont perdus !\n")
 print("Attention, si vous aviez supprimés des OMs,\nceux-ci sont présent sur Character Saga !\n")
 print("Attention, les niveaux et DT peuvent être inexactes,\nne pas hésiter à les changer manuellement dans le json\nou directement sur Character Saga après import!\n")
 print("Terminé !")
-print("todo : faction à finir")
+print("todo : faction à finir, DM pas bon ?, rareté incorrect")
