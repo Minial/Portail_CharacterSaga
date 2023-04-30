@@ -8,6 +8,8 @@ Attention, il faut écraser un fichier json pré-existant de personnage déjà c
 
 Attention, le rang de faction est perdue !
 
+Attention, les DT des anciennes saisons ne fonctionnent pas !
+
 Attention, si vous aviez supprimés des OMs, ceux-ci sont présent sur Character Saga !
 
 Attention, les niveaux peuvent être inexactes, ne pas hésiter à les changer manuellement dans le json ou directement sur Character Saga après import!
