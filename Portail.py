@@ -1,4 +1,4 @@
-# Portail V0.1
+# Portail V0.2
 
 import csv
 import datetime
@@ -9,6 +9,7 @@ from bson.objectid import ObjectId
 VERSION = "0.2"
 
 CSVToRead = 'bourin1.csv'
+JSONToWrite = "96264.json"
 
 ValeurLvl = 0
 ValeurGold = 0
@@ -69,6 +70,14 @@ def MagicItemEntryLog(Ligne):
         }
     return LigneJSON
 
+
+def FactionEntryLog(Ligne):
+    FactionLog = {
+          "name": Ligne[3],
+          "rank": "0",
+          "_id": str(ObjectId())
+        }
+    return FactionLog
     
 def convertit_date(chaine_date):
     dt = datetime.datetime.strptime(chaine_date, '%Y-%m-%d %H:%M:%S %Z')
@@ -83,6 +92,7 @@ def MagicItemRemove(Ligne):
             return i
     print("\nERREUR 03 : objet échangé non existant !\n" + MagicItemLog["name"] + "\n")
     sys.exit(1)
+
 
 
 print("Portail v" + VERSION + "\n")
@@ -106,7 +116,7 @@ with open(CSVToRead, 'r', encoding='utf-8') as f:
                 "magicItems": [],
                 "storyAwards": [],
                 "consumables": [],
-                #"factions": [Row[3]],
+                "factions": [FactionEntryLog(Row)],
                 "logs": [],
                 "gold": ValeurGold,
                 "dt": ValeurDT,
@@ -156,9 +166,12 @@ with open(CSVToRead, 'r', encoding='utf-8') as f:
 Donnees["lvl"] = ValeurLvl
 #print(Donnees["magicItems"])
 
-with open("96264.json", "w", encoding="utf-8", newline='\n') as f:
+with open(JSONToWrite, "w", encoding="utf-8", newline='\n') as f:
     json.dump(Donnees, f, ensure_ascii=False, indent=2)
-
-print("Attention, les niveaux peuvent être inexactes,\nne pas hésiter à les changer manuellement dans le json\nou directement sur Character Saga après import.\n")
+    
+    
+print("Attention, le rang de faction est perdue !\n")
+print("Attention, si vous aviez supprimés des OMs,\nceux-ci sont présent sur Character Saga !\n")
+print("Attention, les niveaux peuvent être inexactes,\nne pas hésiter à les changer manuellement dans le json\nou directement sur Character Saga après import!\n")
 print("Terminé !")
-print("todo : faction, dmreward, erreur bourin1")
+print("todo : faction à finir")
