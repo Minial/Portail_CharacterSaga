@@ -9,8 +9,8 @@ from bson.objectid import ObjectId
 VERSION = "0.2"
 print("Portail v" + VERSION + "\n")
 
-CSVToRead = 'Glomi.csv'
-JSONToWrite = "Name test.json"
+CSVToRead = 'Boaco.csv'
+JSONToWrite = "Boaco.json"
 
 Initial_id = ""
 Initialpcid = ""
@@ -88,9 +88,12 @@ def FactionEntryLog(Ligne):
     return FactionLog
     
 def convertit_date(chaine_date):
-    dt = datetime.datetime.strptime(chaine_date, '%Y-%m-%d %H:%M:%S %Z')
-    dt_utc = dt.astimezone(datetime.timezone.utc)
-    return dt_utc.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    if chaine_date != '':
+        dt = datetime.datetime.strptime(chaine_date, '%Y-%m-%d %H:%M:%S %Z')
+        dt_utc = dt.astimezone(datetime.timezone.utc)
+        return dt_utc.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    else:
+        return None
 
 def MagicItemRemove(Ligne):
     MagicItemLog = MagicItemEntryLog(Ligne)
@@ -202,4 +205,4 @@ print("Attention, les informations de faction sont perdus !\n")
 print("Attention, si vous aviez supprimés des OMs,\nceux-ci sont présent sur Character Saga !\n")
 print("Attention, les niveaux et DT peuvent être inexactes,\nne pas hésiter à les changer manuellement dans le json\nou directement sur Character Saga après import!\n")
 print("Terminé !")
-print("todo : faction à finir, DM pas bon ?, rareté incorrect")
+print("todo : faction à finir, rareté incorrect")
