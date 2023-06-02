@@ -6,11 +6,11 @@ import json
 import sys
 from bson.objectid import ObjectId
 
-VERSION = "0.2"
+VERSION = "0.3"
 print("Portail v" + VERSION + "\n")
 
-CSVToRead = 'Boaco.csv'
-JSONToWrite = "Boaco.json"
+CSVToRead = 'Glomi.csv'
+JSONToWrite = "Glomi.json"
 
 Initial_id = ""
 Initialpcid = ""
@@ -97,8 +97,8 @@ def convertit_date(chaine_date):
 
 def MagicItemRemove(Ligne):
     MagicItemLog = MagicItemEntryLog(Ligne)
-    for i in range(len(Donnees["magicItems"])):
-        if MagicItemLog["name"] == Donnees["magicItems"][i]["name"] and MagicItemLog["desc"] == Donnees["magicItems"][i]["desc"]:
+    for i in range(len(Donnees["magicitems"])):
+        if MagicItemLog["name"] == Donnees["magicitems"][i]["name"] and MagicItemLog["desc"] == Donnees["magicitems"][i]["desc"]:
             return i
     print("\nERREUR 03 : objet échangé non existant !\n" + MagicItemLog["name"] + "\n")
     sys.exit(1)
@@ -109,7 +109,8 @@ def NettoyageMagicItem(MagicItemsList):
     for MagicItem in reversed(MagicItemsList):
         compteur -= 1#pour donner l'index précis correspondant dans la nouvelle list
         if MagicItem["name"] == "" and MagicItem["desc"] == "" :
-            NewMagicItemsList.pop(compteur)
+            #NewMagicItemsList.pop(compteur)
+            NewMagicItemsList[compteur]["inactive"] = True
     return NewMagicItemsList
 
 #truc bête, mais pas le droit de modifier une variable globale depuis l'intérieur d'une fonction
@@ -134,7 +135,7 @@ with open(CSVToRead, 'r', encoding='utf-8') as f:
                 "url": Row[6],
                 "setting": "al",
                 "userid": Initialpcid,
-                "magicItems": [],
+                "magicitems": [],
                 "storyAwards": [],
                 "consumables": [],
                 "factions": [FactionEntryLog(Row)],
@@ -170,7 +171,7 @@ with open(CSVToRead, 'r', encoding='utf-8') as f:
             elif Row[0] == "MAGIC ITEM":#log d'objet magic ajouté
                 MagicItemLog = MagicItemEntryLog(Row)
                 Donnees["logs"][-1]["magicitems"].append(MagicItemLog)
-                Donnees["magicItems"].append(MagicItemLog)
+                Donnees["magicitems"].append(MagicItemLog)
             
             elif Row[0] == "TRADED MAGIC ITEM":#log d'objet magic ajouté
                 #fait dans une seconde boucle pour éviter les problèmes
@@ -188,14 +189,14 @@ with open(CSVToRead, 'r', encoding='utf-8') as f:
         # de log d'échange daté avant l'ajout de l'objet
         if "TRADED MAGIC ITEM" in Row[0]:#log d'objet magique échangé (a enlever)
             IndexMagicItem = MagicItemRemove(Row)
-            Donnees["magicItems"].pop(IndexMagicItem)
+            Donnees["magicitems"][IndexMagicItem]["inactive"] = True
             
 
 
 Donnees["lvl"] = ValeurLvl 
-Donnees["magicItems"] = NettoyageMagicItem(Donnees["magicItems"])
+Donnees["magicitems"] = NettoyageMagicItem(Donnees["magicitems"])
 Donnees["logs"].reverse()
-#print(Donnees["magicItems"])
+#print(Donnees["magicitems"])
 
 with open(JSONToWrite, "w", encoding="utf-8", newline='\n') as f:
     json.dump(Donnees, f, ensure_ascii=False, indent=2)
